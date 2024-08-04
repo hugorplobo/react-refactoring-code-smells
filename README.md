@@ -666,7 +666,7 @@ class ExampleComponent extends Component {
 
 ### Extract logic to a custom context
 
-Typically, data is passed from parent to child components using props. However, this can become complex when dealing with deeply nested component structures or when multiple components require the same information. React's context provides a solution by allowing a parent component to share data with any child component, regardless of its depth, without the need for explicit prop passing. In the code below, there is a `theme` state being passed to all the component tree:
+Typically, data is passed from parent to child components using props. However, this can become complex when dealing with deeply nested component structures or when multiple components require the same information. React's context provides a solution by allowing a parent component to share data with any child component, regardless of its depth, without the need for explicit prop passing. Thus, this refactoring consists in extracting the deep passed props to a custom context. In the code below, there is a `theme` state being passed to all the component tree:
 
 ```jsx
 function Component2(props) {
