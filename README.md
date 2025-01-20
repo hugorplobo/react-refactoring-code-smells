@@ -15,6 +15,9 @@
     - [Remove direct DOM manipulation](#remove-direct-dom-manipulation)
     - [Remove force update](#remove-force-update)
     - [Extract logic to a custom context](#extract-logic-to-a-custom-context)
+    - [Extract union type](#extract-union-type)
+    - [Assert non-null value](#assert-non-null-value)
+    - [Add constant values](#add-constant-values)
 
 ## Introduction
 
@@ -742,5 +745,79 @@ function App() {
             <Component1 />
         </ThemeProvider>
     );
+}
+```
+
+### Extract union type
+
+The union syntax in TypeScript allows developers to specify multiple possible types for a variable or return type. However, using multiples union types decrease the readability of the code. Thus, this refactoring helps simplify complex union types by extracting a reusable type alias. This improves code readability and maintainability, especially when the same union type is used multiple times. In the code below, there is an inline union type representing the possible status of a process:
+
+```typescript
+function processStatus(status: "pending" | "approved" | "rejected") {
+  console.log(`Status: ${status}`);
+}
+
+function logStatus(status: "pending" | "approved" | "rejected") {
+  console.log(`Logging status: ${status}`);
+}
+```
+
+In the code below, the refactoring was applied, extracting the inline union and defining a dedicated type `Status` for it. The uses of the inline union were also replaced by references to the new type:
+
+```typescript
+type Status = "pending" | "approved" | "rejected";
+
+function processStatus(status: Status) {
+  console.log(`Status: ${status}`);
+}
+
+function logStatus(status: Status) {
+  console.log(`Logging status: ${status}`);
+}
+```
+
+### Assert non-null value
+
+Although the TypeScript type system is very smart, there are cases where the compiler can't infer the non-nullity of some values while a human can ensure that the value is not null. The TypeScript has a syntax for those cases, where the non-null assertion operator (`!`) can be used to enforce that a value is not null. However, relying only on the reasoning of a the developer can lead to bugs, and decrease the understandability of the code, since other developers may not follow the same logic. Hence, this refactoring consists in explicitly asserting the non-nullity of a value before using it. In the code below, the developer knows that the values will not be null, so he uses the non-null assertion operator for accessing the data:
+
+```typescript
+function processValue(obj?: { prop1?: { prop2?: string } }) {
+  console.log(obj!.prop1!.prop2!);
+  return true;
+}
+```
+
+In the code below, the refactoring was applied, inserting an `if` statement before accessing the value. In this case the function returns earlier with a `false` value, but the desired behavior depends on the context:
+
+```typescript
+function processValue(obj?: { prop1?: { prop2?: string } }) {
+  if (!obj?.prop1?.prop2) {
+    return false;
+  }
+
+  console.log(obj.prop1.prop2);
+  return true;
+}
+```
+
+### Add constant values
+
+The enums in TypeScript allow developers to express defined values to a type, without the problems of using constants like strings or numbers. However, the variants of an enumeration implicitly have numeric values associated with them, which some code may depend on. This way, adding a new variant to the top of the enum will increase the implicit counting, and maybe introduce bugs in the code. So, this refactoring consists of simply adding explicitly values to the enum variants. In the code below, there is an enum without explicit values:
+
+```typescript
+enum Status {
+  PENDING,
+  ACCEPTED,
+  REJECTED,
+}
+```
+
+In the code below, the refactoring was applied, adding constant values to all variants:
+
+```typescript
+enum Status {
+  PENDING = 1,
+  ACCEPTED = 2,
+  REJECTED = 3,
 }
 ```
